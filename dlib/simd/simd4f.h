@@ -1,3 +1,4 @@
+
 // Copyright (C) 2013  Davis E. King (davis@dlib.net)
 // License: Boost Software License   See LICENSE.txt for the full license.
 #ifndef DLIB_sIMD4F_Hh_
@@ -52,7 +53,8 @@ namespace dlib
         inline void store(type* ptr)         const { _mm_storeu_ps(ptr, x); }
 
         inline unsigned int size() const { return 4; }
-        inline float operator[](unsigned int idx) const 
+
+        inline float operator[](unsigned int idx) const
         {
             float temp[4];
             store(temp);
@@ -62,6 +64,7 @@ namespace dlib
     private:
         __m128 x;
     };
+
 
     class simd4f_bool
     {
@@ -87,14 +90,14 @@ namespace dlib
 #elif defined(DLIB_HAVE_VSX)
 
     class simd4f
-    {    
+    {
         typedef union {
             __vector float v;
             float x[4];
         } v4f;
-        
+
         v4f x;
-        
+
     public:
         inline simd4f() : x{0,0,0,0} {}
         inline simd4f(const simd4f& v) : x(v.x) { }
@@ -103,8 +106,8 @@ namespace dlib
         inline simd4f(const simd4i& v) {
             x.x[0]=v[0]; x.x[1]=v[1]; x.x[2]=v[2]; x.x[3]=v[3];
         }
-        
-        
+
+
         inline simd4f(float f) : x{f,f,f,f} { }
         inline simd4f(float r0, float r1, float r2, float r3)
              : x{r0,r1,r2,r3} { }
@@ -114,16 +117,16 @@ namespace dlib
 
         inline __vector float operator() () const { return x.v; }
         inline float operator[](unsigned int idx) const { return x.x[idx]; }
-        
+
         inline void load_aligned(const float* ptr)  { x.v = vec_ld(0, ptr); }
         inline void store_aligned(float* ptr) const { vec_st(x.v, 0, ptr); }
         inline void load(const float* ptr) { x.v = vec_vsx_ld(0, ptr); }
         inline void store(float* ptr) const { vec_vsx_st(x.v, 0, ptr); }
-        
-        
+
+
         // truncate to 32bit integers
-        inline operator simd4i::rawarray() const 
-        { 
+        inline operator simd4i::rawarray() const
+        {
             simd4i::rawarray temp;
             temp.v.x[0] = x.x[0];
             temp.v.x[1] = x.x[1];
@@ -143,14 +146,21 @@ namespace dlib
         typedef float type;
 
         inline simd4f() {}
-        inline simd4f(float f) { x = vdupq_n_f32(f); }
+
+        inline simd4f(float f)
+        {
+            x = vdupq_n_f32(f);
+        }
+
         inline simd4f(float r0, float r1, float r2, float r3)
         {
-            float __attribute__ ((aligned (16))) data[4] = { r0, r1, r2, r3 };
+            float data[4] = { r0, r1, r2, r3 };
             x = vld1q_f32(data);
         }
-        inline simd4f(const float32x4_t& val):x(val) {}
-        inline simd4f(const simd4i& val):x(vcvtq_f32_s32(val)) {}
+
+        inline simd4f(const float32x4_t& val) : x(val) {}
+
+        inline simd4f(const simd4i& val) : x(vcvtq_f32_s32(val)) {}
 
         inline simd4f& operator=(const simd4i& val)
         {
@@ -170,17 +180,36 @@ namespace dlib
             return *this;
         }
 
-        inline operator float32x4_t() const { return x; }
+        inline operator float32x4_t() const
+        {
+            return x;
+        }
 
-        // truncate to 32bit integers
-        inline operator int32x4_t() const { return vcvtq_s32_f32(x); }
+        inline void load_aligned(const type* ptr)
+        {
+            x = vld1q_f32(ptr);
+        }
 
-        inline void load_aligned(const type* ptr)  { x = vld1q_f32(ptr); }
-        inline void store_aligned(type* ptr) const { vst1q_f32(ptr, x); }
-        inline void load(const type* ptr)          { x = vld1q_f32(ptr); }
-        inline void store(type* ptr)         const { vst1q_f32(ptr, x); }
+        inline void store_aligned(type* ptr) const
+        {
+            vst1q_f32(ptr, x);
+        }
 
-        inline unsigned int size() const { return 4; }
+        inline void load(const type* ptr)
+        {
+            x = vld1q_f32(ptr);
+        }
+
+        inline void store(type* ptr) const
+        {
+            vst1q_f32(ptr, x);
+        }
+
+        inline unsigned int size() const
+        {
+            return 4;
+        }
+
         inline float operator[](unsigned int idx) const
         {
             float temp[4];
@@ -194,7 +223,9 @@ namespace dlib
 
 
     typedef simd4i simd4f_bool;
+
 #else
+
     class simd4f
     {
     public:
@@ -206,8 +237,8 @@ namespace dlib
         inline simd4f(const simd4i& val) { x[0]=val[0]; x[1]=val[1]; x[2]=val[2]; x[3]=val[3];}
 
         // truncate to 32bit integers
-        inline operator simd4i::rawarray() const 
-        { 
+        inline operator simd4i::rawarray() const
+        {
             simd4i::rawarray temp;
             temp.a[0] = (int32)x[0];
             temp.a[1] = (int32)x[1];
@@ -299,10 +330,10 @@ namespace dlib
 
 // ----------------------------------------------------------------------------------------
 
-    inline simd4f operator+ (const simd4f& lhs, const simd4f& rhs) 
-    { 
+    inline simd4f operator+ (const simd4f& lhs, const simd4f& rhs)
+    {
 #ifdef DLIB_HAVE_SSE2
-        return _mm_add_ps(lhs, rhs); 
+        return _mm_add_ps(lhs, rhs);
 #elif defined(DLIB_HAVE_VSX)
         return vec_add(lhs(), rhs());
 #elif defined(DLIB_HAVE_NEON)
@@ -314,15 +345,16 @@ namespace dlib
                       lhs[3]+rhs[3]);
 #endif
     }
-    inline simd4f& operator+= (simd4f& lhs, const simd4f& rhs) 
+
+    inline simd4f& operator+= (simd4f& lhs, const simd4f& rhs)
     { lhs = lhs + rhs; return lhs; }
 
 // ----------------------------------------------------------------------------------------
 
-    inline simd4f operator- (const simd4f& lhs, const simd4f& rhs) 
-    { 
+    inline simd4f operator- (const simd4f& lhs, const simd4f& rhs)
+    {
 #ifdef DLIB_HAVE_SSE2
-        return _mm_sub_ps(lhs, rhs); 
+        return _mm_sub_ps(lhs, rhs);
 #elif defined(DLIB_HAVE_VSX)
         return vec_sub(lhs(), rhs());
 #elif defined(DLIB_HAVE_NEON)
@@ -334,15 +366,16 @@ namespace dlib
                       lhs[3]-rhs[3]);
 #endif
     }
-    inline simd4f& operator-= (simd4f& lhs, const simd4f& rhs) 
+
+    inline simd4f& operator-= (simd4f& lhs, const simd4f& rhs)
     { lhs = lhs - rhs; return lhs; }
 
 // ----------------------------------------------------------------------------------------
 
-    inline simd4f operator* (const simd4f& lhs, const simd4f& rhs) 
-    { 
+    inline simd4f operator* (const simd4f& lhs, const simd4f& rhs)
+    {
 #ifdef DLIB_HAVE_SSE2
-        return _mm_mul_ps(lhs, rhs); 
+        return _mm_mul_ps(lhs, rhs);
 #elif defined(DLIB_HAVE_VSX)
         return vec_mul(lhs(), rhs());
 #elif defined(DLIB_HAVE_NEON)
@@ -354,15 +387,16 @@ namespace dlib
                       lhs[3]*rhs[3]);
 #endif
     }
-    inline simd4f& operator*= (simd4f& lhs, const simd4f& rhs) 
+
+    inline simd4f& operator*= (simd4f& lhs, const simd4f& rhs)
     { lhs = lhs * rhs; return lhs; }
 
 // ----------------------------------------------------------------------------------------
 
-    inline simd4f operator/ (const simd4f& lhs, const simd4f& rhs) 
-    { 
+    inline simd4f operator/ (const simd4f& lhs, const simd4f& rhs)
+    {
 #ifdef DLIB_HAVE_SSE2
-        return _mm_div_ps(lhs, rhs); 
+        return _mm_div_ps(lhs, rhs);
 #elif defined(DLIB_HAVE_VSX)
         return vec_div(lhs(), rhs());
 #elif defined(DLIB_HAVE_NEON)
@@ -378,6 +412,7 @@ namespace dlib
                       lhs[3]/rhs[3]);
 #endif
     }
+
     inline simd4f& operator/= (simd4f& lhs, const simd4f& rhs)
     { lhs = lhs / rhs; return lhs; }
 
@@ -435,8 +470,8 @@ namespace dlib
 
 // ----------------------------------------------------------------------------------------
 
-    inline simd4f_bool operator> (const simd4f& lhs, const simd4f& rhs) 
-    { 
+    inline simd4f_bool operator> (const simd4f& lhs, const simd4f& rhs)
+    {
         return rhs < lhs;
     }
 
@@ -513,7 +548,7 @@ namespace dlib
         float32x4_t estimate  = vrecpeq_f32(item);
         estimate  = vmulq_f32(vrecpsq_f32(estimate , item), estimate );
         estimate  = vmulq_f32(vrecpsq_f32(estimate , item), estimate );
-        return estimate ;
+        return estimate;
 #else
         return simd4f(1.0f/item[0],
                       1.0f/item[1],
@@ -551,6 +586,7 @@ namespace dlib
 // ----------------------------------------------------------------------------------------
 
     inline float dot(const simd4f& lhs, const simd4f& rhs);
+
     inline float sum(const simd4f& item)
     {
 #ifdef DLIB_HAVE_SSE41
@@ -687,4 +723,3 @@ namespace dlib
 }
 
 #endif // DLIB_sIMD4F_Hh_
-
