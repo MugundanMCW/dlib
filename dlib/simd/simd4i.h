@@ -563,4 +563,3 @@ namespace dlib
 }
 
 #endif // DLIB_sIMD4I_Hh_
-
