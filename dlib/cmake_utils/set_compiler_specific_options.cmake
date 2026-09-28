@@ -1,4 +1,4 @@
-```cmake
+
 cmake_minimum_required(VERSION 3.10.0)
 
 
@@ -255,4 +255,4 @@ if (MSVC)
    endif()
 
 endif()
-```
+
