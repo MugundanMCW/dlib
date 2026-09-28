@@ -3,7 +3,7 @@ name: Python
 on:
   push:
     branches:
-    - master
+    - win_arm64
     paths:
     - ".github/workflows/build_python.yml"
     - "**.cpp"
