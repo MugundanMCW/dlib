@@ -3,7 +3,7 @@ name: Python
 on:
   push:
     branches:
-    - master
+    - testing
     paths:
     - ".github/workflows/build_python.yml"
     - "**.cpp"
